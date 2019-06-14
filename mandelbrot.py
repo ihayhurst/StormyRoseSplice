@@ -14,7 +14,7 @@ zoom = 1000*zoomControl*resolutionMultiplier
 #Offset to center the image
 offset = -width*1.2/2-(height/2)*1j
 #Increase iterations to impove the quality of the image
-MAX_ITER = 300
+MAX_ITER = 64
 
 #Set up the array for the pixels
 data = numpy.zeros((height, width, 3), dtype=numpy.uint8)
@@ -57,4 +57,4 @@ for x in range(0, height-1):
 #Save and show the file
 print("Image complete!")
 image = Image.fromarray(data)
-image.save("plot.jpeg")
+image.save("plot.tiff")
