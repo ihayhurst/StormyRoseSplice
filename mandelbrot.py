@@ -76,22 +76,25 @@ def progressIndication(x, screenSize):
 def mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter):
     r1 = np.linspace(xmin, xmax, width)
     r2 = np.linspace(ymin, ymax, height)
-    n3 = np.empty((width,height))
+    n3 = np.zeros((width,height,3), dtype=np.uint8)
     for i in range(width):
         for j in range(height):
-            n3[i,j] = mandelbrot(r1[i] + 1j*r2[j],maxiter)
+            c = r1[i] + 1j*r2[j]
+            delta = mandelbrot(c,maxiter)
+            red = int(delta *255 / maxiter)
+            n3[i,j] = [red,0,0]
+        progressIndication(i, width)
     return (r1,r2,n3)
 
 def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
+    r1 = np.linspace(xmin, xmax, width)
+    r2 = np.linspace(ymin, ymax, height)
     data = np.zeros((height, width, 3), dtype=np.uint8)
     for x in range(0, height-1):
         for y in range(0, width-1):
             i = 1j
-            c = y + x*i
-            #c = c + offset
-            #c = c/zoom
-            #delta = mandelbrot(c) 
-            delta = mandelbrot_gpu(c,maxiter) 
+            c = r1[y] + r2[x]*i
+            delta = mandelbrot(c,maxiter) 
             red   = int(delta * 255 /maxiter)
             green =0 #green = int(delta *255 / MAX_ITER)
             blue = 0 #blue  = int(delta *255 / MAX_ITER)
@@ -105,7 +108,7 @@ def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
     r2 = np.linspace(ymin, ymax, height, dtype=np.float32)
     c = r1 + r2[:,None]*1j
     c = np.ravel(c)
-    n3 = mandelbrot_gpu(c,maxiter)
+    n3 = mandelbrot(c,maxiter)
     n3 = n3.reshape((width,height))
     return (r1,r2,n3)
 
@@ -113,7 +116,7 @@ def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
 def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     cmap = 'hot'
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
-    x,y,z = mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter)
+    x,y,z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
     fig, ax = plt.subplots(figsize=(width, height))
     ticks = np.arange(0,width,1000)
     #x_ticks = xmin + (xmax-xmin)*ticks/width
@@ -121,16 +124,16 @@ def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     #y_ticks = ymin + (ymax-ymin)*ticks/width
     #plt.yticks(ticks, y_ticks)
     ax.set_title(cmap)
-    ax.imshow(z.T,cmap=cmap,origin='lower') 
+    ax.imshow(z.T,origin='lower') 
     fig.savefig('plot.png')
     print('Created plot\n')
     plt.clf()
 
 def mandelbrot_image1(xmin,xmax,ymin,ymax,width,height,maxiter):
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
-    x,y,z = mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter)
-    image = Image.fromarray(z.T)
-    image.save("plot.tiff")
+    z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
+    image = Image.fromarray(z)
+    image.save("plot.png")
     return
 
 def main(args=None):
@@ -145,9 +148,10 @@ def main(args=None):
     #Offset to center the image
     #offset = -width*1.2/2-(height/2)*1j
     #Increase iterations to impove the quality of the image
-    maxiter = 2048
+    maxiter = 190
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
-    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    #mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
 
