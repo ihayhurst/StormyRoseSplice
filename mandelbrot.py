@@ -8,10 +8,13 @@ import pyopencl as cl
 from matplotlib import pyplot as plt
 from matplotlib import colors
 
-#ctx = cl.create_some_context(interactive=True)
-platform = cl.get_platforms()[0]  # Select the first platform [0]
-device = platform.get_devices()[1]  # Select the first device on this platform [0]
-ctx = cl.Context([device])
+#allow choice of opencl device
+ctx = cl.create_some_context(interactive=True)
+
+#Preselect opencl device (or set an env var  PYOPENCL_CTX='0:0' before running)
+#platform = cl.get_platforms()[0]  # Select the first platform [0]
+#device = platform.get_devices()[0]  # Select the first device on this platform [0]
+#ctx = cl.Context([device])
 
 @jit
 def mandelbrot(c,maxiter):
@@ -120,9 +123,16 @@ def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     #plt.yticks(ticks, y_ticks)
     #ax.set_title(cmap)
     ax.imshow(z.T,cmap=cmap,origin='lower') 
-    fig.savefig('plot.tiff')
+    fig.savefig('plot.png')
     print('Created plot\n')
     plt.clf()
+
+def mandelbrot_image1(xmin,xmax,ymin,ymax,width,height,maxiter):
+    print (xmin,xmax,ymin,ymax,width,height,maxiter)
+    x,y,z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
+    image = Image.fromarray(z)
+    image.save("plot.tiff")
+    return
 
 def main(args=None):
 
@@ -139,7 +149,7 @@ def main(args=None):
     maxiter = 128
     # delta = mandelbrot_gpu(c, MAX_ITER) 
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
-    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
     #Save and show the file
     print("Image complete!")
     #image = Image.fromarray(data)
