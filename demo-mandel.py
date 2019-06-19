@@ -152,7 +152,7 @@ if __name__ == '__main__':
             self.im = Image.fromarray(self.mandel)
             self.im.putpalette([i for rgb in ((j, 0, 0) for j in range(255))
                                 for i in rgb])
-            self.im.save('demo-mandel.tiff')
+            self.im.save('demo-mandel.jpeg', 'JPEG')
 
         def create_label(self):
             # put the image on a label widget
