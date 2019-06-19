@@ -117,16 +117,17 @@ def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
 def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     cmap = 'hot'
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
+    my_dpi=100
     z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
-    fig, ax = plt.subplots(figsize=(width, height))
+    fig, ax = plt.subplots(figsize=(width/my_dpi, height/my_dpi), dpi=my_dpi)
     ticks = np.arange(0,width,1000)
     #x_ticks = xmin + (xmax-xmin)*ticks/width
     #plt.xticks(ticks, x_ticks)
     #y_ticks = ymin + (ymax-ymin)*ticks/width
     #plt.yticks(ticks, y_ticks)
     ax.set_title(cmap)
-    ax.imshow(z,origin='lower') 
-    fig.savefig('plot.png')
+    ax.imshow(z,cmap=cmap,origin='lower') 
+    plt.savefig('plot.png')
     print('Created plot\n')
     plt.clf()
 
@@ -134,7 +135,7 @@ def mandelbrot_image1(xmin,xmax,ymin,ymax,width,height,maxiter):
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
     z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
     image = Image.fromarray(z)
-    #image.putpalette([i for rgb in ((j,0,0) for j in range (255))for i in rgb])
+    #image.putpalette("L",[255,0,0])
     image.save("plot.png")
     return
 
@@ -153,7 +154,7 @@ def main(args=None):
     maxiter =128
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
     #mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
-    mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
     #mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
