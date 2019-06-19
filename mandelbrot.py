@@ -99,7 +99,7 @@ def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
             green =0 #green = int(delta *255 / MAX_ITER)
             blue = 0 #blue  = int(delta *255 / MAX_ITER)
 
-            data[x, y] = [red, green, blue]
+            data[x, y] = (delta %255)
         progressIndication(x, height)
     return(data)
 
@@ -118,7 +118,7 @@ def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     cmap = 'hot'
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
     my_dpi=100
-    z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
+    z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
     fig, ax = plt.subplots(figsize=(width/my_dpi, height/my_dpi), dpi=my_dpi)
     ticks = np.arange(0,width,1000)
     #x_ticks = xmin + (xmax-xmin)*ticks/width
@@ -126,8 +126,9 @@ def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     #y_ticks = ymin + (ymax-ymin)*ticks/width
     #plt.yticks(ticks, y_ticks)
     ax.set_title(cmap)
-    ax.imshow(z,cmap=cmap,origin='lower') 
-    plt.savefig('plot.png')
+    norm = colors.PowerNorm(0.3)
+    ax.imshow(z,cmap='plasma',norm=norm,origin='lower') 
+    fig.savefig('plot.png')
     print('Created plot\n')
     plt.clf()
 
@@ -151,7 +152,7 @@ def main(args=None):
     #Offset to center the image
     #offset = -width*1.2/2-(height/2)*1j
     #Increase iterations to impove the quality of the image
-    maxiter =128
+    maxiter =2048
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
     #mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
     mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
