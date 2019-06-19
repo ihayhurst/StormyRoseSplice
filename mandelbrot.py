@@ -9,12 +9,12 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 
 #allow choice of opencl device
-#ctx = cl.create_some_context(interactive=True)
+ctx = cl.create_some_context(interactive=True)
 
 #Preselect opencl device (or set an env var  PYOPENCL_CTX='0:0' before running)
-platform = cl.get_platforms()[0]  # Select the first platform [0]
-device = platform.get_devices()[0]  # Select the first device on this platform [0]
-ctx = cl.Context([device])
+#platform = cl.get_platforms()[0]  # Select the first platform [0]
+#device = platform.get_devices()[0]  # Select the first device on this platform [0]
+#ctx = cl.Context([device])
 
 @jit
 def mandelbrot(c,maxiter):
@@ -74,8 +74,8 @@ def progressIndication(x, screenSize):
 
 @jit
 def mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter):
-    r1 = np.linspace(xmin, xmax, width)
-    r2 = np.linspace(ymin, ymax, height)
+    r1 = np.linspace(xmin, xmax, (xmax-xmin)/width)
+    r2 = np.linspace(ymin, ymax, (ymax-ymin)/height) *1j
     n3 = np.zeros((width,height,3), dtype=np.uint8)
     for i in range(width):
         for j in range(height):
@@ -87,8 +87,8 @@ def mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter):
     return (r1,r2,n3)
 
 def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
-    r1 = np.linspace(xmin, xmax, width)
-    r2 = np.linspace(ymin, ymax, height)
+    r1 = np.arange(xmin, xmax, (xmax-xmin)/width)
+    r2 = np.arange(ymin, ymax, (ymax-ymin)/height) 
     data = np.zeros((height, width, 3), dtype=np.uint8)
     for x in range(0, height-1):
         for y in range(0, width-1):
@@ -104,11 +104,12 @@ def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
     return(data)
 
 def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
-    r1 = np.linspace(xmin, xmax, width, dtype=np.float32)
-    r2 = np.linspace(ymin, ymax, height, dtype=np.float32)
+    r1 = np.arange(xmin, xmax, (xmax-xmin)/width, dtype=np.float32)
+    r2 = np.arange(ymin, ymax, (ymax-ymin)/height, dtype=np.float32) 
+    #c= np.ravel(xx+yy[:, np.newaxis]).astype(np.complex64)
     c = r1 + r2[:,None]*1j
     c = np.ravel(c)
-    n3 = mandelbrot(c,maxiter)
+    n3 = mandelbrot_gpu(c,maxiter)
     n3 = n3.reshape((width,height))
     return (r1,r2,n3)
 
@@ -116,7 +117,7 @@ def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
 def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     cmap = 'hot'
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
-    x,y,z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
+    z = mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter)
     fig, ax = plt.subplots(figsize=(width, height))
     ticks = np.arange(0,width,1000)
     #x_ticks = xmin + (xmax-xmin)*ticks/width
@@ -124,7 +125,7 @@ def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
     #y_ticks = ymin + (ymax-ymin)*ticks/width
     #plt.yticks(ticks, y_ticks)
     ax.set_title(cmap)
-    ax.imshow(z.T,origin='lower') 
+    ax.imshow(z,origin='lower') 
     fig.savefig('plot.png')
     print('Created plot\n')
     plt.clf()
@@ -140,18 +141,18 @@ def main(args=None):
 
 
     resolutionMultiplier = 1
-    width = 1920 * resolutionMultiplier
-    height = 1080 * resolutionMultiplier
+    width = 2048 * resolutionMultiplier
+    height = 2048 * resolutionMultiplier
 
     #zoomControl = 0.8
     #zoom = 1000*zoomControl*resolutionMultiplier
     #Offset to center the image
     #offset = -width*1.2/2-(height/2)*1j
     #Increase iterations to impove the quality of the image
-    maxiter = 190
+    maxiter =128
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
-    #mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
-    mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
+    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    #mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
 
