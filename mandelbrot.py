@@ -104,14 +104,14 @@ def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
     return(data)
 
 def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
-    r1 = np.arange(xmin, xmax, (xmax-xmin)/width, dtype=np.float32)
-    r2 = np.arange(ymin, ymax, (ymax-ymin)/height, dtype=np.float32) 
     #c= np.ravel(xx+yy[:, np.newaxis]).astype(np.complex64)
+    r1 = np.arange(xmin, xmax, (xmax-xmin)/width)
+    r2 = np.arange(ymin, ymax, (ymax-ymin)/height)
     c = r1 + r2[:,None]*1j
     c = np.ravel(c)
     n3 = mandelbrot_gpu(c,maxiter)
-    n3 = n3.reshape((width,height))
-    return (r1,r2,n3)
+    n3 = (n3.reshape((height,width)) / float(n3.max()) * 255.).astype(np.uint8)
+    return (n3)
 
 
 def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
@@ -134,6 +134,7 @@ def mandelbrot_image1(xmin,xmax,ymin,ymax,width,height,maxiter):
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
     z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
     image = Image.fromarray(z)
+    #image.putpalette([i for rgb in ((j,0,0) for j in range (255))for i in rgb])
     image.save("plot.png")
     return
 
@@ -151,7 +152,11 @@ def main(args=None):
     #Increase iterations to impove the quality of the image
     maxiter =128
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
+<<<<<<< HEAD
     mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+=======
+    mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+>>>>>>> e0866ece27bd39c37dd4322b150742cbcb1ae802
     #mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
