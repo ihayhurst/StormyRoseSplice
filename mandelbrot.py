@@ -152,11 +152,8 @@ def main(args=None):
     #Increase iterations to impove the quality of the image
     maxiter =128
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
-<<<<<<< HEAD
-    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
-=======
+    #mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
     mandelbrot_image1(-2.0,0.5,-1.25,1.25,width,height,maxiter)
->>>>>>> e0866ece27bd39c37dd4322b150742cbcb1ae802
     #mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
