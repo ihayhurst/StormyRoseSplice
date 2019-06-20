@@ -72,91 +72,74 @@ def progressIndication(x, screenSize):
         prog = round(x/screenSize*100)
         print(str(prog) + "% done", end="\r")
 
-@jit
-def mandelbrot_set(xmin,xmax,ymin,ymax,width,height,maxiter):
-    r1 = np.linspace(xmin, xmax, (xmax-xmin)/width)
-    r2 = np.linspace(ymin, ymax, (ymax-ymin)/height) *1j
-    n3 = np.zeros((width,height,3), dtype=np.uint8)
-    for i in range(width):
-        for j in range(height):
-            c = r1[i] + 1j*r2[j]
-            delta = mandelbrot(c,maxiter)
-            red = int(delta *255 / maxiter)
-            n3[i,j] = [red,0,0]
-        progressIndication(i, width)
-    return (r1,r2,n3)
-
-def mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter):
+def mandel_iterate_bypixel(xmin,xmax,ymin,ymax,width,height,maxiter):
     r1 = np.arange(xmin, xmax, (xmax-xmin)/width)
     r2 = np.arange(ymin, ymax, (ymax-ymin)/height) 
     data = np.zeros((height, width, 3), dtype=np.uint8)
     for x in range(0, height-1):
         for y in range(0, width-1):
-            i = 1j
-            c = r1[y] + r2[x]*i
+            c = r1[y] + r2[x]*1j
             delta = mandelbrot(c,maxiter) 
-            red   = int(delta * 255 /maxiter)
-            green =0 #green = int(delta *255 / MAX_ITER)
-            blue = 0 #blue  = int(delta *255 / MAX_ITER)
+            red   = int(delta % 255)
+            green   = int(delta % 128)
+            blue   = int(delta % 64)
 
-            data[x, y] = (delta %255)
+            data[x, y] = (red,green,blue)
         progressIndication(x, height)
     return(data)
 
-def mandelbrot_set3(xmin,xmax,ymin,ymax,width,height,maxiter):
-    #c= np.ravel(xx+yy[:, np.newaxis]).astype(np.complex64)
+def mandel_iterate_byarray(xmin,xmax,ymin,ymax,width,height,maxiter):
     r1 = np.arange(xmin, xmax, (xmax-xmin)/width)
-    r2 = np.arange(ymin, ymax, (ymax-ymin)/height)
-    c = r1 + r2[:,None]*1j
-    c = np.ravel(c)
+    r2 = np.arange(ymin, ymax, (ymax-ymin)/height)* 1j
+    c = r1 + r2[:,np.newaxis]
+    c = np.ravel(c).astype(np.complex64)
     n3 = mandelbrot_gpu(c,maxiter)
     n3 = (n3.reshape((height,width)) / float(n3.max()) * 255.).astype(np.uint8)
     return (n3)
 
 
-def mandelbrot_image(xmin,xmax,ymin,ymax,width,height,maxiter):
+def mandelbrot_image_mpl(xmin,xmax,ymin,ymax,width,height,maxiter):
+    '''Displays with matplotlib'''
     cmap = 'hot'
-    print (xmin,xmax,ymin,ymax,width,height,maxiter)
     my_dpi=100
-    z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
+    print (xmin,xmax,ymin,ymax,width,height,maxiter)
+    #z = mandel_iterate_bypixel(xmin,xmax,ymin,ymax,width,height,maxiter)
+    z = mandel_iterate_byarray(xmin,xmax,ymin,ymax,width,height,maxiter)
     fig, ax = plt.subplots(figsize=(width/my_dpi, height/my_dpi), dpi=my_dpi)
     ticks = np.arange(0,width,1000)
-    #x_ticks = xmin + (xmax-xmin)*ticks/width
-    #plt.xticks(ticks, x_ticks)
-    #y_ticks = ymin + (ymax-ymin)*ticks/width
-    #plt.yticks(ticks, y_ticks)
+    x_ticks = xmin + (xmax-xmin)*ticks/width
+    plt.xticks(ticks, x_ticks)
+    y_ticks = ymin + (ymax-ymin)*ticks/width
+    plt.yticks(ticks, y_ticks)
     ax.set_title(cmap)
     norm = colors.PowerNorm(0.3)
     ax.imshow(z,cmap='plasma',norm=norm,origin='lower') 
     fig.savefig('plot.png')
-    print('Created plot\n')
+    print('Created plot using matplotlib\n')
     plt.clf()
 
-def mandelbrot_image1(xmin,xmax,ymin,ymax,width,height,maxiter):
+def mandelbrot_image_PIL(xmin,xmax,ymin,ymax,width,height,maxiter):
+    '''Displays with PIL (mono needs palette) '''
     print (xmin,xmax,ymin,ymax,width,height,maxiter)
-    z = mandelbrot_set1(xmin,xmax,ymin,ymax,width,height,maxiter)
+    #z = mandel_iterate_bypixel(xmin,xmax,ymin,ymax,width,height,maxiter)
+    z = mandel_iterate_byarray(xmin,xmax,ymin,ymax,width,height,maxiter)
     image = Image.fromarray(z)
-    #image.putpalette("L",[255,0,0])
+    #image.putpalette("P",[255,0,0,254,0,0,253,0,0,244,0,0])
     image.save("plot.png")
+    print('Created plot using PIL\n') 
     return
 
 def main(args=None):
 
 
-    resolutionMultiplier = 1
+    resolutionMultiplier = 2
     width = 2048 * resolutionMultiplier
     height = 2048 * resolutionMultiplier
-
-    #zoomControl = 0.8
-    #zoom = 1000*zoomControl*resolutionMultiplier
-    #Offset to center the image
-    #offset = -width*1.2/2-(height/2)*1j
-    #Increase iterations to impove the quality of the image
-    maxiter =2048
+    maxiter =1024
     #make the (xmin,xmax,ymin,ymax,width,height,maxiter):
-    #mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
-    mandelbrot_image(-2.0,0.5,-1.25,1.25,width,height,maxiter)
-    #mandelbrot_image1(-0.9,-0.3,0,0.25,width,height,maxiter)
+    mandelbrot_image_mpl(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    #mandelbrot_image_PIL(-2.0,0.5,-1.25,1.25,width,height,maxiter)
+    #mandelbrot_image_mpl(0.9,-0.3,0,0.25,width,height,maxiter)
     print("Image complete!")
     sys.exit(1)
 
