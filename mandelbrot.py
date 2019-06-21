@@ -29,12 +29,10 @@ def mandelbrot(c,maxiter):
     return 0
 
 def mandelbrot_gpu(q, maxiter):
-
     global ctx
-
     queue = cl.CommandQueue(ctx)
-
     output = np.empty(q.shape, dtype=np.uint16)
+
     prg = cl.Program(ctx, """
     #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
     __kernel void mandelbrot(__global float2 *q,
@@ -60,13 +58,9 @@ def mandelbrot_gpu(q, maxiter):
     mf = cl.mem_flags
     q_opencl = cl.Buffer(ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=q)
     output_opencl = cl.Buffer(ctx, mf.WRITE_ONLY, output.nbytes)
-
-
     prg.mandelbrot(queue, output.shape, None, q_opencl,
                    output_opencl, np.uint16(maxiter))
-
     cl.enqueue_copy(queue, output, output_opencl).wait()
-
     return output
 
 #Progress bar to get an idea of when the image will be finished
@@ -117,7 +111,7 @@ def mandelbrot_image_mpl(xmin,xmax,ymin,ymax,width,height,maxiter):
     y_ticks = ymin + (ymax-ymin)*ticks/width
     plt.yticks(ticks, y_ticks)
     ax.set_title(plot_title)
-    norm = colors.PowerNorm(0.3)
+    norm = colors.PowerNorm(0.5)
     ax.imshow(z,cmap=cmap,norm=norm,origin='lower') 
     fig.savefig('plot.png')
     print('Created plot using matplotlib\n')
@@ -136,7 +130,7 @@ def mandelbrot_image_PIL(xmin,xmax,ymin,ymax,width,height,maxiter):
 
 def main(args=None):
 
-    #Set required resolution, iteration depth and co-crdinate boundary below
+    #Set required resolution, iteration depth and co-ordinate boundary below
     resolutionMultiplier = 2
     width = 2048 * resolutionMultiplier
     height = 2048 * resolutionMultiplier
@@ -144,9 +138,11 @@ def main(args=None):
     #Top level
     #xmin, xmax, ymin, ymax = -2.0, 0.5,-1.25, 1.25
     #Test Zoom 1
-    xmin,xmax,ymin,ymax = -0.375,0.125, -1.125,-0.675
-    #Test Zoom 2
     #xmin,xmax,ymin,ymax = -0.375,0.125, -1.125,-0.675
+    #Test Zoom 2
+    #min,xmax,ymin,ymax = -0.25,-0.125, -0.9,-0.775
+    #Test Zoom 3
+    xmin,xmax,ymin,ymax = -0.1875,-0.1725, -0.845,-0.830
     mandelbrot_image_mpl(xmin,xmax,ymin,ymax,width,height,maxiter)
     #mandelbrot_image_PIL(xmin,xmax,ymin,ymax,width,height,maxiter)
     print("Image complete!")
