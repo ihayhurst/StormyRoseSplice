@@ -1,7 +1,8 @@
-CPU / GPU argument
+CPU / GPU argument (both now present)
 Parallelise CPU
-Cython
+Cython (went with jit)
 Argument for resolution
 Argument for max iterations
+Argument for set coordinates
 Focus on a specific branch
-Colour map
+Colour map (in mpl but not PIL draw function)
