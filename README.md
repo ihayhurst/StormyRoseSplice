@@ -7,3 +7,5 @@ which inspired a wave of nostalgia for early 90's Mandelbrot fever and my first 
 This implements two methods from JeanFrancoisPuget's matrix. Generating the set by iterating througt the coordinate space which is speeded up immensely using the jit decorator from numba, or by passing arrays to some OpenCL code to run on gpu ... massively quicker!
 
 output array can be plotted in Matplotlib or PILlow, and saved to a .png Matplotlib is nice as it's easy to add a colormap. I havent worked out quite how PIL does it yet. 
+
+(https://ihayhurst.github.io/StormyRoseSplice/plot-thumb.png)
