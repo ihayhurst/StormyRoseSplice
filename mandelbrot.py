@@ -134,7 +134,7 @@ def main(args=None):
     resolutionMultiplier = 2
     width = 2048 * resolutionMultiplier
     height = 2048 * resolutionMultiplier
-    maxiter =768
+    maxiter =2048
     #Top level
     #xmin, xmax, ymin, ymax = -2.0, 0.5,-1.25, 1.25
     #Test Zoom 1
@@ -142,7 +142,9 @@ def main(args=None):
     #Test Zoom 2
     #min,xmax,ymin,ymax = -0.25,-0.125, -0.9,-0.775
     #Test Zoom 3
-    xmin,xmax,ymin,ymax = -0.1875,-0.1725, -0.845,-0.830
+    #xmin,xmax,ymin,ymax = -0.1875,-0.1725, -0.845,-0.830
+    #Interesting region from JFP's page
+    xmin,xmax,ymin,ymax = -0.74877, -0.74872, 0.065053 , 0.065103
     mandelbrot_image_mpl(xmin,xmax,ymin,ymax,width,height,maxiter)
     #mandelbrot_image_PIL(xmin,xmax,ymin,ymax,width,height,maxiter)
     print("Image complete!")
