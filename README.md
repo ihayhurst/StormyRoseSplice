@@ -8,4 +8,4 @@ This implements two methods from JeanFrancoisPuget's matrix. Generating the set 
 
 output array can be plotted in Matplotlib or PILlow, and saved to a .png Matplotlib is nice as it's easy to add a colormap. I havent worked out quite how PIL does it yet. 
 
-(https://ihayhurst.github.io/StormyRoseSplice/plot-thumb.png)
+![alt text](https://ihayhurst.github.io/StormyRoseSplice/plot-thumb.png)
