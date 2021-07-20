@@ -8,14 +8,6 @@ import pyopencl as cl
 from matplotlib import pyplot as plt
 from matplotlib import colors
 
-#Uncomment next line to allow choice of opencl device
-ctx = cl.create_some_context(interactive=True)
-
-#Preselect opencl device (or set an env var  PYOPENCL_CTX='0:0' before running)
-#platform = cl.get_platforms()[0]  # Select the first platform [0]
-#device = platform.get_devices()[0]  # Select the first device on this platform [0]
-#ctx = cl.Context([device])
-
 @jit
 def mandelbrot(c, maxiter):
     z = c
@@ -26,11 +18,10 @@ def mandelbrot(c, maxiter):
     return 0
 
 def mandelbrot_gpu(q, maxiter):
-    global ctx
-    queue = cl.CommandQueue(ctx)
+    queue = cl.CommandQueue(settings.context)
     output = np.empty(q.shape, dtype=np.uint16)
 
-    prg = cl.Program(ctx, """
+    prg = cl.Program(settings.context, """
     #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
     __kernel void mandelbrot(__global float2 *q,
                      __global ushort *output, ushort const maxiter)
@@ -53,8 +44,8 @@ def mandelbrot_gpu(q, maxiter):
     """).build()
 
     mf = cl.mem_flags
-    q_opencl = cl.Buffer(ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=q)
-    output_opencl = cl.Buffer(ctx, mf.WRITE_ONLY, output.nbytes)
+    q_opencl = cl.Buffer(settings.context, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=q)
+    output_opencl = cl.Buffer(settings.context, mf.WRITE_ONLY, output.nbytes)
     prg.mandelbrot(queue, output.shape, None, q_opencl,
                    output_opencl, np.uint16(maxiter))
     cl.enqueue_copy(queue, output, output_opencl).wait()
@@ -66,6 +57,7 @@ def progressIndication(x, screenSize):
         prog = round(x / screenSize * 100)
         print(str(prog) + "% done", end="\r")
 
+#Used for processing on CPU
 def mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter):
     r1 = np.arange(xmin, xmax, (xmax - xmin) / width)
     r2 = np.arange(ymin, ymax, (ymax - ymin) / height) 
@@ -82,6 +74,7 @@ def mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter):
         progressIndication(x, height)
     return(data)
 
+#Used for processing on GPU
 def mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter):
     r1 = np.arange(xmin, xmax, (xmax - xmin) / width)
     r2 = np.arange(ymin, ymax, (ymax - ymin) / height) * 1j
@@ -91,17 +84,22 @@ def mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter):
     n3 = (n3.reshape((height, width)) / float(n3.max()) * 255.).astype(np.uint8)
     return (n3)
 
+def mandel_iterate(xmin, xmax, ymin, ymax, width, height, maxiter):
+    if settings.iterateMethod == 'array':
+        return mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter)
+    elif settings.iterateMethod == 'pixel':
+        return mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter)
+    else:
+        print(f'Unrecognised iteration method "{settings.iterateMethod}", exiting')
+        exit(1)
 
 def mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter):
     #Displays with matplotlib
     cmap = 'twilight'
     my_dpi = 100
     print(xmin, xmax, ymin, ymax, width, height, maxiter)
-
+    z = mandel_iterate(xmin, xmax, ymin, ymax, width, height, maxiter)
     plot_title = cmap, xmin, xmax, ymin, ymax, width, height, maxiter
-
-    #z = mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter)
-    z = mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter)
 
     fig, ax = plt.subplots(figsize = (width / my_dpi, height / my_dpi), dpi = my_dpi)
     ticks = np.arange(0,width,512)
@@ -114,16 +112,16 @@ def mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter):
 
     ax.set_title(plot_title)
     norm = colors.PowerNorm(0.5)
-    ax.imshow(z, cmap=cmap, norm=norm, origin='lower') 
+    ax.imshow(z, cmap=cmap, norm=norm, origin='lower')
     fig.savefig('plot.png')
     print('Created plot using matplotlib\n')
     plt.clf()
 
-def mandelbrot_image_PIL(xmin, xmax, ymin, ymax, width, height, maxiter):
+def mandelbrot_image_pil(xmin, xmax, ymin, ymax, width, height, maxiter):
     #Displays with PIL (mono needs palette)
     print(xmin, xmax, ymin, ymax, width, height, maxiter)
-    #z = mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter)
-    z = mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter)
+    z = mandel_iterate(xmin, xmax, ymin, ymax, width, height, maxiter)
+
     image = Image.fromarray(z)
     #image.putpalette("P",[255, 0, 0, 254, 0, 0, 253, 0, 0, 244, 0, 0])
     image.save("plot.png")
@@ -137,13 +135,90 @@ def main(args=None):
     maxiter = 2048
     xmin, xmax, ymin, ymax = -0.74877, -0.74872, 0.065053, 0.065103
 
-    mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter)
-    #mandelbrot_image_PIL(xmin, xmax ,ymin, ymax, width, height, maxiter)
+    if settings.imageMethod == 'mpl':
+        mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter)
+    elif settings.imageMethod == 'pil':
+        mandelbrot_image_pil(xmin, xmax ,ymin, ymax, width, height, maxiter)
+    else:
+        print(f'Unrecognised image method "{settings.imageMethod}", exiting')
+        exit(1)
 
     print("Image complete!")
     sys.exit(1)
 
+class settings:
+    iterateMethod = 'pixel'
+    imageMethod = 'mpl'
+    context = ''
+
+class deviceSettings:
+    defaultPlatform = 0
+    defaultDevice = 0
+    platform = None
+    device = None
+    useSettings = False
+
+def createContext():
+    #Don't change context if one is already selected
+    if settings.context != '':
+        return settings.context
+
+    #Turn pre-selected device into a context
+    if deviceSettings.useSettings:
+        platform = cl.get_platforms()[deviceSettings.platform] #Select the chosen platform
+        device = platform.get_devices()[deviceSettings.device] #Select the chosen device
+        return cl.Context([device])
+
+    #Ask for a device and return it
+    return cl.create_some_context(interactive=True)
+
 if __name__ == '__main__':
+    for i, arg in enumerate(sys.argv):
+        if arg == '--cpu': #Setup settings for CPU processing
+            settings.iterateMethod = 'pixel'
+        elif arg == '--gpu': #Setup settings for GPU processing
+            settings.iterateMethod = 'array'
+        elif arg == '--platform': #If a platform is specified, get the next argument and set it as the platform
+            if len(sys.argv) >= i + 2:
+                platform = sys.argv[i + 1]
+                try:
+                    platform = int(platform)
+                    deviceSettings.platform = platform
+                    deviceSettings.useSettings = True
+                except:
+                    print(f'--platform must be one of the following, not "{platform}":')
+                    for i, platform in enumerate(cl.get_platforms()):
+                        print(f'{i}: {platform}')
+                    exit(1)
+        elif arg == '--device': #If a device is specified, get the next argument and set it as the device
+            if len(sys.argv) >= i + 2:
+                device = sys.argv[i + 1]
+                try:
+                    device = int(device)
+                    deviceSettings.device = device
+                    deviceSettings.useSettings = True
+                except:
+                    print(f'--device must be an integer, not "{device}"')
+                    exit(1)
+        elif arg == '--help':
+            print('Help page:')
+            print('  --cpu                 : Run the program on CPU')
+            print('  --gpu                 : Run the program on GPU')
+            print('  --platform [PLATFORM] : Select which platform the device is on')
+            print('  --device [DEVICE]     : Select the device to run on')
+            exit(0)
+
+    #If creating a context is required, do it
+    if settings.iterateMethod == 'array':
+        #If settings are to be used, fill in defaults where needed
+        if deviceSettings.useSettings:
+            if deviceSettings.platform == None:
+                deviceSettings.platform = deviceSettings.defaultPlatform
+            if deviceSettings.device == None:
+                deviceSettings.device = deviceSettings.defaultDevice
+
+        settings.context = createContext()
+
     try:
         main()
     except ValueError:
