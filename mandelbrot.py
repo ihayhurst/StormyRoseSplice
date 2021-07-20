@@ -114,7 +114,7 @@ def mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter):
 
     ax.set_title(plot_title)
     norm = colors.PowerNorm(0.5)
-    ax.imshow(z,cmap=cmap,norm=norm,origin='lower') 
+    ax.imshow(z, cmap=cmap, norm=norm, origin='lower') 
     fig.savefig('plot.png')
     print('Created plot using matplotlib\n')
     plt.clf()
@@ -125,7 +125,7 @@ def mandelbrot_image_PIL(xmin, xmax, ymin, ymax, width, height, maxiter):
     #z = mandel_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter)
     z = mandel_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter)
     image = Image.fromarray(z)
-    #image.putpalette("P",[255,0,0,254,0,0,253,0,0,244,0,0])
+    #image.putpalette("P",[255, 0, 0, 254, 0, 0, 253, 0, 0, 244, 0, 0])
     image.save("plot.png")
     print('Created plot using PIL\n') 
 
@@ -135,7 +135,7 @@ def main(args=None):
     width = 2048 * resolutionMultiplier
     height = 2048 * resolutionMultiplier
     maxiter = 2048
-    xmin, xmax, ymin, ymax = -0.74877, -0.74872, 0.065053 , 0.065103
+    xmin, xmax, ymin, ymax = -0.74877, -0.74872, 0.065053, 0.065103
 
     mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter)
     #mandelbrot_image_PIL(xmin, xmax ,ymin, ymax, width, height, maxiter)
