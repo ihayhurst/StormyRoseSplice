@@ -320,4 +320,4 @@ if __name__ == '__main__':
                 deviceSettings.device = deviceSettings.defaultDevice
 
         settings.context = createContext()
-        main()
+    main()
