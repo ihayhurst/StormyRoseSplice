@@ -102,18 +102,11 @@ def mandelbrot_image_mpl(xmin, xmax, ymin, ymax, width, height, maxiter):
     plot_title = cmap, xmin, xmax, ymin, ymax, width, height, maxiter
 
     fig, ax = plt.subplots(figsize = (width / my_dpi, height / my_dpi), dpi = my_dpi)
-    ticks = np.arange(0,width,512)
-    plt.gcf().autofmt_xdate()
 
-    x_ticks = xmin + (xmax - xmin) * ticks / width
-    y_ticks = ymin + (ymax - ymin) * ticks / width
-    plt.xticks(ticks, x_ticks)
-    plt.yticks(ticks, y_ticks)
-
-    ax.set_title(plot_title)
+    ax.axis("off")
     norm = colors.PowerNorm(0.5)
     ax.imshow(z, cmap=cmap, norm=norm, origin='lower')
-    fig.savefig('plot.png')
+    fig.savefig('plot.png',bbox_inches='tight', pad_inches = 0)
     print('Created plot using matplotlib\n')
     plt.clf()
 
