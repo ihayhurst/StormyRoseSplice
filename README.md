@@ -15,6 +15,7 @@
   - This implements two methods from JeanFrancoisPuget's matrix. Generating the set by iterating through the coordinate space which is speeded up immensely using the jit decorator from numba, or by passing arrays to some OpenCL code to run on gpu
 
 ## Interesting coordinate sets:
+  - These can be filled into the script in the same way as the defaults
   - Top level:   `xmin, xmax, ymin, ymax = -2.0, 0.5, -1.25, 1.25`
   - Test Zoom 1: `xmin, xmax, ymin, ymax = -0.375, 0.125, -1.125, -0.675`
   - Test Zoom 2: `xmin, xmax, ymin, ymax = -0.25, -0.125, -0.9, -0.775`
