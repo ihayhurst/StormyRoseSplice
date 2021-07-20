@@ -1,7 +1,13 @@
 # StormyRoseSplice
   - Mandelbrot plot play
   - The output array can be plotted in Matplotlib or Pillow, and saved to a .png
-   - Matplotlib is nice as it's easy to add a colormap. I havent worked out quite how PIL does it yet
+   - Matplotlib is nice as it's easy to add a colormap. I haven't worked out quite how PIL does it yet
+
+## Program help:
+  - --cpu                 : Run the program on CPU
+  - --gpu                 : Run the program on GPU
+  - --platform [PLATFORM] : Select which platform the device is on
+  - --device [DEVICE]     : Select the device to run on
 
 ## Inspiration:
   - Prompted by Reddit post by Adam Reed and his [pastebin code](https://pastebin.com/mr8stzKx), which inspired a wave of nostalgia for early 90's Mandelbrot fever and my first ever pass at doing this in QBasic (After reading James Gleick's 'Chaos') Memories of the awesome fractint https://en.wikipedia.org/wiki/Fractint
