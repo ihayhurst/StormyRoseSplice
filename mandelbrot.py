@@ -6,8 +6,6 @@ from PIL import Image, ImageOps
 from numba import jit, int32, complex64
 from functools import cmp_to_key
 import pyopencl as cl
-from matplotlib import pyplot as plt
-from matplotlib import colors
 from matplotlib import cm
 
 @jit
@@ -144,30 +142,10 @@ def mandelbrot_prepare(coords):
     for tile in tiles:
         print(f'{tile.id}: {tile.x["min"]}, {tile.x["max"]}, {tile.y["min"]}, {tile.y["max"]}, {tile.length}, {tile.length}, {tile.maxIter}')
         data = mandelbrot_iterate(tile.x['min'], tile.x['max'], tile.y['min'], tile.y['max'], tile.length, tile.length, tile.maxIter)
-        mandelbrot_image_pil(data, tile, f'plots/plot{tile.id}.png')
+        mandelbrot_image_pil(data, tile, f'plots/plot{tile.id}.{imageSettings.fileType}')
 
     #Merge all the images into 1
     combine_images('output')
-
-def mandelbrot_image_mpl(data, tile, outputPath):
-    cmap = imageSettings.colourMap
-    imageDpi = 100
-
-    fig, ax = plt.subplots(figsize = ((tile.length / imageDpi), (tile.length / imageDpi)), dpi = imageDpi)
-
-    ax.axis('off')
-    norm = colors.PowerNorm(0.5 * imageSettings.colourMultiplier)
-    ax.imshow(data, cmap=cmap, norm=norm, origin='lower')
-
-    if not os.path.isdir('plots'):
-        os.mkdir('plots')
-
-    fig.tight_layout()
-    fig.savefig(outputPath, bbox_inches='tight', pad_inches=0)
-    print(f'Rendered region {tile.id}/{tile.totalTiles}\n')
-
-    plt.clf()
-    plt.close()
 
 def mandelbrot_image_pil(data, tile, outputPath):
     #Normalise data
