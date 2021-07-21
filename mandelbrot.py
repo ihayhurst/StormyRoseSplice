@@ -8,6 +8,7 @@ from functools import cmp_to_key
 import pyopencl as cl
 from matplotlib import pyplot as plt
 from matplotlib import colors
+from matplotlib import cm
 
 @jit
 def mandelbrot(c, maxiter):
@@ -169,9 +170,16 @@ def mandelbrot_image_mpl(data, tile, outputPath):
     plt.close()
 
 def mandelbrot_image_pil(data, tile, outputPath):
+    #Normalise data
+    data = data/(data.max()/1.0)
+
+    #Apply a colourmap, remap to 0-255
+    colourMap = cm.get_cmap('twilight')
+    data = np.uint8(colourMap(data) * 255)
+
+    #Create image and flip
     image = Image.fromarray(data)
     image = image.transpose(Image.FLIP_TOP_BOTTOM)
-    #image.putpalette("P",[255, 0, 0, 254, 0, 0, 253, 0, 0, 244, 0, 0])
     image.save(outputPath)
     print(f'Rendered region {tile.id}/{tile.totalTiles}\n')
 
