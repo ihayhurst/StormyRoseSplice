@@ -1,7 +1,6 @@
 # StormyRoseSplice
   - Mandelbrot plot play
-  - The output array can be plotted in Matplotlib or Pillow, and saved to a .png
-   - Matplotlib is nice as it's easy to add a colormap. I haven't worked out quite how PIL does it yet
+  - The output array can be plotted in Pillow, and saved to any image type supported
 
 ## Program help:
   - --cpu                 : Run the program on CPU
