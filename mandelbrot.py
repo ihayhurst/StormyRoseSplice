@@ -143,7 +143,7 @@ def mandelbrot_prepare(coords):
     for tile in tiles:
         print(f'{tile.id}: {tile.x["min"]}, {tile.x["max"]}, {tile.y["min"]}, {tile.y["max"]}, {tile.length}, {tile.length}, {tile.maxIter}')
         data = mandelbrot_iterate(tile.x['min'], tile.x['max'], tile.y['min'], tile.y['max'], tile.length, tile.length, tile.maxIter)
-        mandelbrot_image_mpl(data, tile, f'plots/plot{tile.id}.png')
+        mandelbrot_image_pil(data, tile, f'plots/plot{tile.id}.png')
 
     #Merge all the images into 1
     combine_images('output')
@@ -167,6 +167,13 @@ def mandelbrot_image_mpl(data, tile, outputPath):
 
     plt.clf()
     plt.close()
+
+def mandelbrot_image_pil(data, tile, outputPath):
+    image = Image.fromarray(data)
+    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+    #image.putpalette("P",[255, 0, 0, 254, 0, 0, 253, 0, 0, 244, 0, 0])
+    image.save(outputPath)
+    print(f'Rendered region {tile.id}/{tile.totalTiles}\n')
 
 def combine_images(outputImage):
     outputPath = f'{outputImage}.{imageSettings.fileType}'
