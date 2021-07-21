@@ -150,7 +150,7 @@ def mandelbrot_prepare(coords):
     combine_images('output')
 
 def mandelbrot_image_mpl(data, tile, outputPath):
-    cmap = 'twilight'
+    cmap = imageSettings.colourMap
     imageDpi = 100
 
     fig, ax = plt.subplots(figsize = ((tile.length / imageDpi), (tile.length / imageDpi)), dpi = imageDpi)
@@ -174,7 +174,7 @@ def mandelbrot_image_pil(data, tile, outputPath):
     data = data/(data.max()/1.0)
 
     #Apply a colourmap, remap to 0-255
-    colourMap = cm.get_cmap('twilight')
+    colourMap = cm.get_cmap(imageSettings.colourMap)
     data = np.uint8(colourMap(data) * 255)
 
     #Create image and flip
@@ -275,6 +275,7 @@ class imageSettings:
         self.length = 4096 * self.resolutionMultiplier
         self.maxIter = 2048
         self.colourMultiplier = 1
+        self.colourMap = 'twilight'
 imageSettings = imageSettings()
 
 class deviceSettings:
