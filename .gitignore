@@ -1,3 +1,6 @@
 plot*
 output*
 plot/*
+
+.venv/
+.env/
