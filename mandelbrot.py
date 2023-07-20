@@ -191,7 +191,7 @@ def combine_images(outputImage):
     shape = shape if shape else (1, len(images))
     image_size = (length * shape[1], length * shape[0])
     image = Image.new('RGB', image_size)
-    
+
     #Paste images into final image
     for row in range(shape[0]):
         for col in range(shape[1]):
