@@ -204,6 +204,23 @@ def combine_images(outputImage):
             images[imageCount] = None
     image.save(outputPath, imageSettings.fileType)
 
+"""
+  #Top level
+    #xmin, xmax, ymin, ymax = -2.0, 0.5,-1.25, 1.25
+    #Test Zoom 1
+    #xmin,xmax,ymin,ymax = -0.375,0.125, -1.125,-0.675
+    #Test Zoom 2
+    #min,xmax,ymin,ymax = -0.25,-0.125, -0.9,-0.775
+    #Test Zoom 3
+    #xmin,xmax,ymin,ymax = -0.1875,-0.1725, -0.845,-0.830
+    #Interesting region from JFP's page
+    #xmin,xmax,ymin,ymax = -0.74877, -0.74872, 0.065053 , 0.065103
+    #dcutchen post marksmath,org
+    xmin,xmax,ymin,ymax =-0.34853774148008254, -0.34831493420245574, -0.6065922085831237, -0.606486596104741
+    mandelbrot_image_mpl(xmin,xmax,ymin,ymax,width,height,maxiter)
+    #mandelbrot_image_PIL(xmin,xmax,ymin,ymax,width,height,maxiter)
+"""
+
 
 def main():
     #Set co-ordinate boundary below
