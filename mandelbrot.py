@@ -157,7 +157,7 @@ def mandelbrot_image_pil(data, tile, outputPath):
 
     #Create image and flip
     image = Image.fromarray(data)
-    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+    image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
     if not os.path.exists('plots'):
         os.mkdir('plots')
