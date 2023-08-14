@@ -6,7 +6,7 @@ from PIL import Image, ImageOps
 from numba import jit, int32, complex64
 from functools import cmp_to_key
 import pyopencl as cl
-from matplotlib import cm
+from matplotlib import colormaps
 
 
 @jit
@@ -191,7 +191,7 @@ def mandelbrot_image_pil(data, tile, outputPath):
     data = data / (data.max() / 1.0)
 
     # Apply a colourmap, remap to 0-255
-    colourMap = cm.get_cmap(imageSettings.colourMap)
+    colourMap = colormaps.get_cmap(imageSettings.colourMap)
     data = np.uint8(colourMap(data) * 255)
 
     # Create image and flip
