@@ -9,7 +9,7 @@ import pyopencl as cl
 from matplotlib import colormaps
 
 
-@jit
+@jit(nopython=True)
 def mandelbrot(c, maxiter):
     z = c
     for n in range(maxiter):
