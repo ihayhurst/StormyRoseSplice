@@ -185,37 +185,35 @@ def mandelbrot_prepare(coords):
     # Merge all the images into 1
     combine_images("output")
 
+
 def normalize(arr):
     """
     Linear normalization
     http://en.wikipedia.org/wiki/Normalization_%28image_processing%29
     """
-    arr = arr.astype('float')
+    arr = arr.astype("float")
     # Do not touch the alpha channel
     for i in range(3):
-        #minval = arr[...,i].min()
+        # minval = arr[...,i].min()
         minval = 0
-        maxval = arr[...,i].max()
+        maxval = arr[..., i].max()
         if minval != maxval:
-            arr[...,i] -= minval
-            arr[...,i] *= (255.0/(maxval-minval))
+            arr[..., i] -= minval
+            arr[..., i] *= 255.0 / (maxval - minval)
     return arr
 
 
 def mandelbrot_image_pil(data, tile, outputPath):
-    print(f'data shape={data.shape}')
     # Normalise data
-    #data = data / (data.max() / 1.0)
-    data = normalize(data).astype('uint8')
+    # data = data / (data.max() / 1.0)
+    data = normalize(data).astype("uint8")
     # Apply a colourmap, remap to 0-255
     colourMap = colormaps.get_cmap(imageSettings.colourMap)
     data = np.uint8(colourMap(data) * 255)
-    # data = (colourMap(data) * 255).astype(np.uint8)
-    #data = colourMap(data)
 
     # Create image and flip
     # image = Image.fromarray(data)
-    image = Image.fromarray(data, 'RGBA')
+    image = Image.fromarray(data, "RGBA")
     image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
     if not os.path.exists("plots"):
