@@ -1,0 +1,5 @@
+numpy
+numba
+pillow
+pyopencl
+matplotlib
