@@ -58,30 +58,15 @@ def mandelbrot_gpu(q, maxiter):
     return output
 
 
-# Progress bar to get an idea of when the image will be finished
-def progressIndication(x, screenSize):
-    if x % 32 == 0:
-        prog = round(x / screenSize * 100)
-        print(str(prog) + "% done", end="\r")
-
-
 # Used for processing on CPU
 def mandelbrot_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter):
-    r1 = np.arange(xmin, xmax, (xmax - xmin) / width)
-    r2 = np.arange(ymin, ymax, (ymax - ymin) / height)
-    data = np.zeros((height, width, 3), dtype=np.uint8)
-    for x in range(0, height - 1):
-        for y in range(0, width - 1):
-            c = r1[y] + r2[x] * 1j
-            delta = mandelbrot(c, maxiter)
-            red = int(delta % 255)
-            green = int(delta % 128)
-            blue = int(delta % 64)
-
-            data[x, y] = (red, green, blue)
-        progressIndication(x, height)
-    return data
-
+    r1 = np.linspace(xmin, xmax, width)
+    r2 = np.linspace(ymin, ymax, height)
+    c = r1 + r2[:, None] * 1j  # Create a 2D grid of complex numbers
+    mandelbrot_vectorized = np.vectorize(mandelbrot)
+    n3 = mandelbrot_vectorized(c, maxiter)
+    n3 = (n3.reshape((height, width)) / float(n3.max()) * 255.0).astype(np.uint8)
+    return n3
 
 # Used for processing on GPU
 def mandelbrot_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter):
