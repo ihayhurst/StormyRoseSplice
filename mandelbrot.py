@@ -59,38 +59,23 @@ def mandelbrot_gpu(q, maxiter):
 
 
 # Used for processing on CPU
-def mandelbrot_iterate_bypixel(xmin, xmax, ymin, ymax, width, height, maxiter):
+def mandelbrot_iterate(xmin, xmax, ymin, ymax, width, height, maxiter):
     r1 = np.linspace(xmin, xmax, width)
     r2 = np.linspace(ymin, ymax, height)
     c = r1 + r2[:, None] * 1j  # Create a 2D grid of complex numbers
-    mandelbrot_vectorized = np.vectorize(mandelbrot)
-    n3 = mandelbrot_vectorized(c, maxiter)
-    n3 = (n3.reshape((height, width)) / float(n3.max()) * 255.0).astype(np.uint8)
-    return n3
 
-# Used for processing on GPU
-def mandelbrot_iterate_byarray(xmin, xmax, ymin, ymax, width, height, maxiter):
-    r1 = np.arange(xmin, xmax, (xmax - xmin) / width)
-    r2 = np.arange(ymin, ymax, (ymax - ymin) / height) * 1j
-    c = r1 + r2[:, np.newaxis]
-    c = np.ravel(c).astype(np.complex64)
-    n3 = mandelbrot_gpu(c, maxiter)
-    n3 = (n3.reshape((height, width)) / float(n3.max()) * 255.0).astype(np.uint8)
-    return n3
-
-
-def mandelbrot_iterate(xmin, xmax, ymin, ymax, width, height, maxiter):
-    if settings.iterateMethod == "array":
-        return mandelbrot_iterate_byarray(
-            xmin, xmax, ymin, ymax, width, height, maxiter
-        )
-    elif settings.iterateMethod == "pixel":
-        return mandelbrot_iterate_bypixel(
-            xmin, xmax, ymin, ymax, width, height, maxiter
-        )
+    if settings.calcMethod =="gpu":
+        c = np.ravel(c).astype(np.complex64)
+        n3 = mandelbrot_gpu(c, maxiter)
     else:
-        print(f'Unrecognised iteration method "{settings.iterateMethod}", exiting')
-        exit(1)
+        mandelbrot_vectorized = np.vectorize(mandelbrot)
+        n3 = mandelbrot_vectorized(c, maxiter)
+
+    n3 = (n3.reshape((height, width)) / float(n3.max()) * 255.0).astype(np.uint8)
+    return n3
+
+
+
 
 
 def mandelbrot_prepare(coords):
@@ -294,7 +279,7 @@ def main():
 
 # Program operation settings
 class settings:
-    iterateMethod = "pixel"  # Handled by arguments, 'pixel' uses cpu
+    iterateMethod = "cpu"  # Handled by arguments uses cpu
     context = ""  # Handled by arguments
     coreCount = 8
 
@@ -345,9 +330,9 @@ def createContext():
 if __name__ == "__main__":
     for i, arg in enumerate(sys.argv):
         if arg == "--cpu":  # Setup settings for CPU processing
-            settings.iterateMethod = "pixel"
+            settings.calcMethod = "cpu"
         elif arg == "--gpu":  # Setup settings for GPU processing
-            settings.iterateMethod = "array"
+            settings.calcMethod = "gpu"
         elif (
             arg == "--platform"
         ):  # If a platform is specified, get the next argument and set it as the platform
@@ -383,7 +368,7 @@ if __name__ == "__main__":
             exit(0)
 
     # If creating a context is required, do it
-    if settings.iterateMethod == "array":
+    if settings.calcMethod == "gpu":
         # If settings are to be used, fill in defaults where needed
         if deviceSettings.useSettings:
             if deviceSettings.platform == None:
