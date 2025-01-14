@@ -255,8 +255,8 @@ def main():
     # Set co-ordinate boundary below
     coords = {
         "default": {
-            "x": {"min": -0.74877, "max": -0.74872},
-            "y": {"min": 0.065053, "max": 0.065103},
+            "x": {"min": -0.74872, "max": -0.74772},
+            "y": {"min": 0.06453, "max": 0.06553},
         },
         "alternative": {
             "x": {"min": -0.750222, "max": -0.749191},
@@ -279,7 +279,7 @@ def main():
 
 # Program operation settings
 class settings:
-    iterateMethod = "cpu"  # Handled by arguments uses cpu
+    calcMethod = "cpu"  # Handled by arguments uses cpu
     context = ""  # Handled by arguments
     coreCount = 8
 
@@ -297,6 +297,7 @@ class imageSettings:
 
 
 imageSettings = imageSettings()
+imageSettings.maxIter=1024
 
 
 class deviceSettings:
