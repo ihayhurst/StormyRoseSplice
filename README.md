@@ -10,8 +10,7 @@
 
 ## Inspiration:
   - Prompted by Reddit post by Adam Reed and his [pastebin code](https://pastebin.com/mr8stzKx), which inspired a wave of nostalgia for early 90's Mandelbrot fever and my first ever pass at doing this in QBasic (After reading James Gleick's 'Chaos') Memories of the awesome fractint https://en.wikipedia.org/wiki/Fractint
-  - Also, a chance to practice some code optimisations and try some of the mindblowing python that [JeanFrancoisPuget has done](https://www.ibm.com/developerworks/community/blogs/jfp/entry/How_To_Compute_Mandelbrodt_Set_Quickly?lang=en)
-  - This implements two methods from JeanFrancoisPuget's matrix. Generating the set by iterating through the coordinate space which is speeded up immensely using the jit decorator from numba, or by passing arrays to some OpenCL code to run on gpu
+  - This implements two methods from JeanFrancoisPuget's matrix. Generating the set by iterating through the coordinate space which is speeded up immensely using the jit decorator from numba, or by passing arrays to an OpenCL kernel to run on gpu
 
 ## Interesting coordinate sets:
   - These can be filled into the script in the same way as the defaults
