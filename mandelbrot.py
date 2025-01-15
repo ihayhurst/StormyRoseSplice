@@ -293,7 +293,7 @@ class imageSettings:
         self.length = 4096 * self.resolutionMultiplier
         self.maxIter = 2048
         self.colourMultiplier = 1
-        self.colourMap = "twilight"
+        self.colourMap = "magma"
 
 
 imageSettings = imageSettings()
@@ -329,53 +329,66 @@ def createContext():
 
 
 if __name__ == "__main__":
-    for i, arg in enumerate(sys.argv):
-        if arg == "--cpu":  # Setup settings for CPU processing
-            settings.calcMethod = "cpu"
-        elif arg == "--gpu":  # Setup settings for GPU processing
-            settings.calcMethod = "gpu"
-        elif (
-            arg == "--platform"
-        ):  # If a platform is specified, get the next argument and set it as the platform
-            if len(sys.argv) >= i + 2:
-                platform = sys.argv[i + 1]
-                try:
-                    platform = int(platform)
-                    deviceSettings.platform = platform
-                    deviceSettings.useSettings = True
-                except:
-                    print(f'--platform must be one of the following, not "{platform}":')
-                    for i, platform in enumerate(cl.get_platforms()):
-                        print(f"{i}: {platform}")
+    i = 0
+    while i < len(sys.argv):
+        arg = sys.argv[i]
+        match arg:
+            case "--cpu":
+                # Setup settings for CPU processing
+                settings.calcMethod = "cpu"
+            case "--gpu":
+                # Setup settings for GPU processing
+                settings.calcMethod = "gpu"
+            case "--platform":
+                # If a platform is specified, get the next argument and set it as the platform
+                if i + 1 < len(sys.argv):
+                    platform = sys.argv[i + 1]
+                    try:
+                        platform = int(platform)
+                        deviceSettings.platform = platform
+                        deviceSettings.useSettings = True
+                        i += 1  # Skip the next argument as it's the platform
+                    except ValueError:
+                        print(f'--platform must be one of the following, not "{platform}":')
+                        for idx, plat in enumerate(cl.get_platforms()):
+                            print(f"{idx}: {plat}")
+                        exit(1)
+                else:
+                    print("--platform requires an argument")
                     exit(1)
-        elif (
-            arg == "--device"
-        ):  # If a device is specified, get the next argument and set it as the device
-            if len(sys.argv) >= i + 2:
-                device = sys.argv[i + 1]
-                try:
-                    device = int(device)
-                    deviceSettings.device = device
-                    deviceSettings.useSettings = True
-                except:
-                    print(f'--device must be an integer, not "{device}"')
+            case "--device":
+                # If a device is specified, get the next argument and set it as the device
+                if i + 1 < len(sys.argv):
+                    device = sys.argv[i + 1]
+                    try:
+                        device = int(device)
+                        deviceSettings.device = device
+                        deviceSettings.useSettings = True
+                        i += 1  # Skip the next argument as it's the device
+                    except ValueError:
+                        print(f'--device must be an integer, not "{device}"')
+                        exit(1)
+                else:
+                    print("--device requires an argument")
                     exit(1)
-        elif arg == "--help":
-            print("Help page:")
-            print("  --cpu                 : Run the program on CPU")
-            print("  --gpu                 : Run the program on GPU")
-            print("  --platform [PLATFORM] : Select which platform the device is on")
-            print("  --device [DEVICE]     : Select the device to run on")
-            exit(0)
+            case "--help":
+                print("Help page:")
+                print("  --cpu                 : Run the program on CPU")
+                print("  --gpu                 : Run the program on GPU")
+                print("  --platform [PLATFORM] : Select which platform the device is on")
+                print("  --device [DEVICE]     : Select the device to run on")
+                exit(0)
+        i += 1  # Move to the next argument
 
     # If creating a context is required, do it
     if settings.calcMethod == "gpu":
         # If settings are to be used, fill in defaults where needed
         if deviceSettings.useSettings:
-            if deviceSettings.platform == None:
+            if deviceSettings.platform is None:
                 deviceSettings.platform = deviceSettings.defaultPlatform
-            if deviceSettings.device == None:
+            if deviceSettings.device is None:
                 deviceSettings.device = deviceSettings.defaultDevice
 
         settings.context = createContext()
     main()
+
